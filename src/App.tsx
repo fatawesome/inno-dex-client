@@ -5,6 +5,9 @@ import {Knopki} from "./components/Knopki/Knopki";
 import {useEthereumInit} from "./components/Ethereum";
 import {useEffect, useState} from "react";
 
+import "./@types/react-datetime-picker.d.ts";
+import {Balans} from "./components/Balans/Balans";
+
 // const orders: Order[] = [
 //   {uid: 1, price: 10, quantity: 1, side: OrderSide.Ask},
 //   {uid: 3, price: 10, quantity: 1, side: OrderSide.Bid},
@@ -34,6 +37,7 @@ function App() {
     <div className="App">
       {ethResult.provideEthereum(
         <div>
+          <Balans/>
           <Knopki/>
           <Stackan orders={orders}/>
         </div>

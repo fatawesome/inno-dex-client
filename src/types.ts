@@ -13,4 +13,5 @@ export interface Order {
   side: OrderSide
   price: number
   quantity: number
+  owner: string
 }

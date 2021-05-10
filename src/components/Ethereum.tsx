@@ -1,92 +1,12 @@
-import React, { ReactElement, useContext, useState } from 'react'
+import React, {ReactElement, useContext, useState} from 'react'
 import Web3 from 'web3'
-import {Order} from "../types";
+import {Order, OrderFlags, OrderSide} from "../types";
 
-const abi = [
-  {
-    "inputs": [
-      {
-        "internalType": "int32",
-        "name": "meters",
-        "type": "int32"
-      }
-    ],
-    "name": "generateToken",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "to",
-        "type": "address"
-      },
-      {
-        "internalType": "uint32",
-        "name": "amount",
-        "type": "uint32"
-      }
-    ],
-    "name": "sendTokens",
-    "outputs": [],
-    "stateMutability": "payable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address payable",
-        "name": "owner",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "constructor"
-  },
-  {
-    "inputs": [],
-    "name": "withdraw",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "admin_address",
-    "outputs": [
-      {
-        "internalType": "address payable",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "balances",
-    "outputs": [
-      {
-        "internalType": "uint32",
-        "name": "",
-        "type": "uint32"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  }
-]
+import coinAbi from "../coin_abi.json";
+import dicksAbi from "../dicks_abi.json";
 
-const address = '0x947EEffC14B41CeAfDF443850C4E77704a7c7ade'
+const coinAddress = "0xc6bba2bb7a3a565224c5871158D9Ad1ABf2072B8";
+const dicksAddress = "0xceff1560c64b3b4af8dd06d5e5711c8309542a09";
 
 declare global {
   interface Window {
@@ -110,43 +30,70 @@ interface NotOk {
 type UseEthereumResult = Ok | NotOk
 
 class Ethereum {
-  constructor (
+  constructor(
     public account: string,
-    private contract = new window.web3.eth.Contract(abi as any, address)
+    private coinContract = new window.web3.eth.Contract(coinAbi as any, coinAddress),
+    private dicksContract = new window.web3.eth.Contract(dicksAbi as any, dicksAddress)
   ) {
     window.web3.defaultAccount = account
   }
 
-  async getAllOrders (): Promise<Order[]> {
-    const asks = await this.contract.methods.allAsks().call({ from: this.account })
-    const bids = await this.contract.methods.allBids().call({ from: this.account })
+  async getAllowance(): Promise<number> {
+    return await this.coinContract.methods.allowance(this.account, dicksAddress).call({ from: this.account })
+  }
+
+  async getMyBalance(): Promise<number> {
+    return await this.coinContract.methods.balanceOf(this.account).call({ from: this.account })
+  }
+
+  async cancelOrder(uid: number): Promise<void> {
+    return await this.dicksContract.methods.cancelOrder(uid).send({ from: this.account })
+  }
+
+  async getAllOrders(): Promise<Order[]> {
+    const asks = await this.dicksContract.methods.allAsks().call({from: this.account})
+    const bids = await this.dicksContract.methods.allBids().call({from: this.account})
     return [
       ...asks,
       ...bids
     ]
   }
 
-  async getMyBalance (): Promise<number> {
-    // return await this.contract.methods.balances().call({ address: this.account })
-    return await this.contract.methods.balances(this.account).call({ from: this.account })
+  async createLimitOrder(side: OrderSide, price: number, quantity: number, flags: OrderFlags, goodTill: Date): Promise<void> {
+    const uid = await this.dicksContract.methods.next_order().call({from: this.account});
+    const goodTillNumber = Math.floor(goodTill.getTime() / 1000);
+
+    const args: any = { from: this.account }
+
+    switch (side) {
+      case OrderSide.Bid:
+        args.value = price * quantity
+        break;
+      case OrderSide.Ask:
+        const allowance = await this.getAllowance()
+        if (allowance < quantity) {
+          await this.coinContract.methods.approve(dicksAddress, allowance + quantity).send({ from: this.account })
+        }
+        break;
+    }
+
+    await this.dicksContract.methods
+      .limitOrder(uid, side, price, quantity, flags, goodTillNumber)
+      .send(args);
   }
 
-  async generateToken (meters: number): Promise<number> {
-    return await this.contract.methods.generateToken(meters).send({ from: this.account })
-  }
-
-  async sendTokens (to: string, amount: number): Promise<void> {
-    return await this.contract.methods.sendTokens(to, amount).send({ from: this.account, value: 343 * 10 ** 12 })
+  async tap() {
+    await this.coinContract.methods.tap().send({ from: this.account })
   }
 }
 
 const EthereumContext = React.createContext<Ethereum | undefined>(undefined)
 
-export function useEthereumInit (): UseEthereumResult {
+export function useEthereumInit(): UseEthereumResult {
   const [account, setAccount] = useState<string | undefined>(undefined)
 
   if (window.ethereum === undefined) {
-    return { fallback: <>Metamask is not installed</> }
+    return {fallback: <>Metamask is not installed</>}
   }
 
   if (!account) {
@@ -167,13 +114,13 @@ export function useEthereumInit (): UseEthereumResult {
   }
 }
 
-export function useEthereum (): Ethereum {
+export function useEthereum(): Ethereum {
   return useContext(EthereumContext) as Ethereum
 }
 
-function MetamaskRequest ({ onAccount }: { onAccount: (x: string) => void }) {
-  function connectMetamask () {
-    window.ethereum.request({ method: 'eth_requestAccounts' }).then((x: string[]) => onAccount(x[0]))
+function MetamaskRequest({onAccount}: { onAccount: (x: string) => void }) {
+  function connectMetamask() {
+    window.ethereum.request({method: 'eth_requestAccounts'}).then((x: string[]) => onAccount(x[0]))
   }
 
   return <button onClick={connectMetamask}>Connect MetaMask account</button>
