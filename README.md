@@ -1,6 +1,8 @@
-# Getting Started with Create React App
-
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Innopolis University SCD course project web application.
+Created by:
+* Ilya Alonov
+* Leonid Lygin
+* Daria Vaskovskaya
 
 ## Available Scripts
 
