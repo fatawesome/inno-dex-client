@@ -1,34 +1,35 @@
 .stackan {
-  display: flex;
-  flex-direction: column;
-  padding: 32px;
+    display: flex;
+    flex-direction: column;
+    padding: 32px;
 }
 
 .order-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+    list-style: none;
+    padding: 0;
+    margin: 0;
 }
+
 .order-list > * {
-  margin: 0;
-  padding: 0;
+    margin: 0;
+    padding: 0;
 }
 
 .order {
-  height: 32px;
-  width: 100%;
-  padding: 8px;
+    height: 32px;
+    width: 100%;
+    padding: 8px;
 
-  display: flex;
-  align-items: center;
+    display: flex;
+    align-items: center;
 }
 
 .order--ask {
-  background: lightpink;
-  justify-content: flex-end;
+    background: lightpink;
+    justify-content: flex-end;
 }
 
 .order--bid {
-  background: lightgreen;
-  justify-content: flex-start;
+    background: lightgreen;
+    justify-content: flex-start;
 }

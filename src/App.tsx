@@ -1,12 +1,12 @@
-import './App.css';
-import {Order, OrderSide} from "./types";
-import {Stackan} from "./components/Stackan";
-import {Knopki} from "./components/Knopki/Knopki";
-import {useEthereumInit} from "./components/Ethereum";
-import {useEffect, useState} from "react";
+import { useEffect, useState } from 'react'
 
-import "./@types/react-datetime-picker.d.ts";
-import {Balans} from "./components/Balans/Balans";
+import './@types/react-datetime-picker.d.ts'
+import './App.css'
+import { Balans } from './components/Balans/Balans'
+import { useEthereumInit } from './components/Ethereum'
+import { Knopki } from './components/Knopki/Knopki'
+import { Stackan } from './components/Stackan'
+import { Order } from './types'
 
 // const orders: Order[] = [
 //   {uid: 1, price: 10, quantity: 1, side: OrderSide.Ask},
@@ -17,7 +17,7 @@ import {Balans} from "./components/Balans/Balans";
 //   {uid: 7, price: 10, quantity: 1, side: OrderSide.Bid}
 // ]
 
-function App() {
+function App () {
   const [orders, setOrders] = useState([] as Order[])
   const ethResult = useEthereumInit()
 
@@ -43,7 +43,7 @@ function App() {
         </div>
       )}
     </div>
-  );
+  )
 }
 
-export default App;
+export default App

@@ -1,5 +1,5 @@
-import {useEthereum} from "../Ethereum";
-import {useEffect, useState} from "react";
+import { useEffect, useState } from 'react'
+import { useEthereum } from '../Ethereum'
 
 export const Balans = () => {
   const [balance, setBalance] = useState(0)

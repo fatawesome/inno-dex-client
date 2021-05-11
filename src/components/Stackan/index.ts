@@ -1,1 +1,1 @@
-export { default as Stackan } from "./Stackan";
+export { default as Stackan } from './Stackan'

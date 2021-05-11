@@ -1,23 +1,23 @@
-import {useState} from "react";
-import {OrderFlags, OrderSide} from "../../types";
-import {useEthereum} from "../Ethereum";
+import { useState } from 'react'
 
-import DateTimePicker from 'react-datetime-picker';
+import DateTimePicker from 'react-datetime-picker'
+import { OrderFlags, OrderSide } from '../../types'
+import { useEthereum } from '../Ethereum'
 
-import "./Knopki.css"
+import './Knopki.css'
 
 export function Knopki () {
-  const [side, setSide] = useState(OrderSide.Ask);
-  const [price, setPrice] = useState(0);
-  const [quantity, setQuantity] = useState(0);
-  const [flags, setFlags] = useState(OrderFlags.ImmediateOrCancel);
-  const [datetimeInForce, setDatetimeInForce] = useState(new Date());
+  const [side, setSide] = useState(OrderSide.Ask)
+  const [price, setPrice] = useState(0)
+  const [quantity, setQuantity] = useState(0)
+  const [flags, setFlags] = useState(OrderFlags.ImmediateOrCancel)
+  const [datetimeInForce, setDatetimeInForce] = useState(new Date())
   const [uidToCancel, setUidToCancel] = useState(0)
 
   const eth = useEthereum()
 
   async function submit (e: any) {
-    e.preventDefault();
+    e.preventDefault()
     await eth.createLimitOrder(side, price, quantity, flags, datetimeInForce)
   }
 
@@ -31,8 +31,8 @@ export function Knopki () {
   }
 
   return (
-    <div className={"knopki"}>
-      <br />
+    <div className={'knopki'}>
+      <br/>
 
       <form onSubmit={submit}>
         <label htmlFor="tap">
@@ -43,12 +43,12 @@ export function Knopki () {
 
         <label htmlFor="price">
           Price:
-          <input id="price" type="number" value={price} onChange={e => setPrice(Number(e.target.value))} />
+          <input id="price" type="number" value={price} onChange={e => setPrice(Number(e.target.value))}/>
         </label>
 
         <label htmlFor="quantity">
           Quantity
-          <input id="quantity" type="number" value={quantity} onChange={e => setQuantity(Number(e.target.value))} />
+          <input id="quantity" type="number" value={quantity} onChange={e => setQuantity(Number(e.target.value))}/>
         </label>
 
         <label htmlFor="govna">
@@ -71,18 +71,19 @@ export function Knopki () {
         {
           flags === OrderFlags.TimeInForce && (
             <label>
-              <DateTimePicker value={datetimeInForce} onChange={setDatetimeInForce} />
+              <DateTimePicker value={datetimeInForce} onChange={setDatetimeInForce}/>
             </label>
           )
         }
-        <input type="submit" value="Ebashim" />
+        <input type="submit" value="Ebashim"/>
       </form>
 
-      <br />
+      <br/>
 
       <form onSubmit={cancel}>
         <label htmlFor="uidToCancel">
-          <input type="number" id="uidToCancel" value={uidToCancel} onChange={e => setUidToCancel(Number(e.target.value))} />
+          <input type="number" id="uidToCancel" value={uidToCancel}
+                 onChange={e => setUidToCancel(Number(e.target.value))}/>
         </label>
         <input type="submit" value="Ebani po bashke blya"/>
       </form>
